@@ -59,28 +59,82 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentCategory, setCurrentCategory] = useState("all");
 
-  useEffect(
-    function () {
-      async function getFacts() {
-        setIsLoading(true);
+  // useEffect(
+  //   function () {
+  //     async function getFacts() {
+  //       setIsLoading(true);
 
-        let query = supabase.from("facts").select("*");
+  //       let query = supabase.from("facts").select("*");
 
-        if (currentCategory !== "all")
-          query = query.eq("category", currentCategory);
+  //       if (currentCategory !== "all")
+  //         query = query.eq("category", currentCategory);
 
-        const { data: facts, error } = await query
-          .order("votesInteresting", { ascending: false })
-          .limit(1000);
+  //       const { data: facts, error } = await query
+  //         .order("votesInteresting", { ascending: false })
+  //         .limit(1000);
 
-        if (!error) setFacts(facts);
-        else alert("There was a problem getting data");
-        setIsLoading(false);
-      }
-      getFacts();
-    },
-    [currentCategory]
-  );
+  //       if (!error) setFacts(facts);
+  //       else alert("There was a problem getting data");
+  //       setIsLoading(false);
+  //     }
+  //     getFacts();
+  //   },
+  //   [currentCategory]
+  // );
+
+  useEffect(() => {
+    // Function to fetch initial facts
+    async function getFacts() {
+      setIsLoading(true);
+
+      let query = supabase.from("facts").select("*");
+
+      if (currentCategory !== "all")
+        query = query.eq("category", currentCategory);
+
+      const { data: facts, error } = await query
+        .order("votesInteresting", { ascending: false })
+        .limit(1000);
+
+      if (!error) setFacts(facts);
+      else alert("There was a problem getting data");
+      setIsLoading(false);
+    }
+
+    // Fetch facts on component mount
+    getFacts();
+
+    // Set up a real-time subscription
+    const subscription = supabase
+      .channel("realtime-facts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "facts" },
+        (payload) => {
+          if (payload.eventType === "UPDATE") {
+            setFacts((facts) =>
+              facts.map((fact) =>
+                fact.id === payload.new.id ? payload.new : fact
+              )
+            );
+          }
+          if (payload.eventType === "INSERT") {
+            setFacts((facts) => [payload.new, ...facts]);
+          }
+          if (payload.eventType === "DELETE") {
+            setFacts((facts) =>
+              facts.filter((fact) => fact.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup the subscription on unmount
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [currentCategory]);
 
   return (
     <>

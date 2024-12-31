@@ -242,8 +242,10 @@ function NewFactForm({ setFacts, setShowForm }) {
 
       console.log(newFact);
 
+      /*  Added Supabase Realtime update for new fact insertion, so commenting this manual adding to state
       // 4. Add the new fact to the UI: add the fact to state
       setFacts((facts) => [newFact[0], ...facts]);
+      */
 
       // 5. Reset input fields
       setText("");

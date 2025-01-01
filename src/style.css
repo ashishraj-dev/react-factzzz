@@ -92,7 +92,6 @@ h1 {
   padding: 16px 24px;
   /* letter-spacing: -1px; */
   border-radius: 16px;
-
   display: flex;
   align-items: center;
   gap: 24px;
@@ -203,7 +202,26 @@ ul {
   display: flex;
   align-items: center;
   gap: 16px;
+  animation: scale 0.3s ease;
 }
+
+@keyframes scale {
+  from {transform: scale(0);}
+  to {transform: scale(1);}
+}
+
+/* @keyframes move {
+  from {transform: translateY(-40px);}
+  to {transform: translateY(0px);}
+} */
+
+/* @keyframes anim {
+  0%   {transform: translateX(-250px)}
+  25%  {transform: translateX(350px)}
+  50%  {transform: translateX(-250px)}
+  75%  {transform: translateX(350px)}
+  100% {transform: translateX(0)}
+} */
 
 .fact-form input,
 .fact-form select {
@@ -250,7 +268,7 @@ ul {
   .fact-form input,
   .fact-form select {
     width: auto;
-    font-size: 20px;
+    font-size: 19px;
   }
 }
 
